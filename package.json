@@ -1,17 +1,17 @@
 {
-  "name": "changelog-helper",
-  "version": "1.0.1",
+  "name": "semantic-auto-changelog",
+  "version": "0.0.1",
   "description": "Handy browser UI to help you write changelogs",
-  "homepage": "https://github.com/RyanZim/changelog-helper#readme",
+  "homepage": "https://github.com/oxitorenk/semantic-auto-changelog#readme",
   "bugs": {
-    "url": "https://github.com/RyanZim/changelog-helper/issues"
+    "url": "https://github.com/oxitorenk/semantic-auto-changelog/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RyanZim/changelog-helper.git"
+    "url": "git+https://github.com/oxitorenk/semantic-auto-changelog.git"
   },
-  "license": "ISC",
-  "author": "Ryan Zimmerman <opensrc@ryanzim.com>",
+  "license": "MIT",
+  "author": "Oğuzhan Akbulut <akbulutoguzhan@outlook.com.tr>",
   "type": "module",
   "browser": {
     "vue": "vue/dist/vue.common.js"

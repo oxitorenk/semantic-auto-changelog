@@ -37,7 +37,7 @@ const url = `http://localhost:${port}/#${pkg.packageJson.version}`;
 
 console.log(`Server running on ${url}`);
 console.log(
-  "Your browser should open shortly; if it doesn't, click on the link above",
+  "Your browser should open shortly; if it doesn't, click on the link above (to cancel process, you can use 'control + c' shortcut)",
 );
 
 open(url);
@@ -61,7 +61,7 @@ function handleData(data) {
 function json2markdown(data) {
   const { changes, version } = data;
 
-  const heading = textToHeading(`${version} / ${timestamp()}`, headingType);
+  const heading = textToHeading(`[${version}] - ${timestamp()}`, headingType);
 
   const list = !changes.length
     ? ''

@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/oxitorenk/semantic-auto-changelog.git"
   },
-  "license": "MIT",
+  "license": "ISC",
   "author": "Oğuzhan Akbulut <akbulutoguzhan@outlook.com.tr>",
   "type": "module",
   "browser": {

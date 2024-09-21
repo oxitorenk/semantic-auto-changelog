@@ -1,6 +1,6 @@
 {
   "name": "semantic-auto-changelog",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Handy browser UI to help you write changelogs",
   "homepage": "https://github.com/oxitorenk/semantic-auto-changelog#readme",
   "bugs": {

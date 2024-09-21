@@ -17,7 +17,7 @@
     "vue": "vue/dist/vue.common.js"
   },
   "bin": {
-    "semantic-auti-changelog": "./index.js"
+    "semantic-auto-changelog": "./index.js"
   },
   "files": [
     "server",

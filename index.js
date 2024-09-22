@@ -10,8 +10,7 @@ import gitLog from "gitlog";
 const gitHistoryConfig = {
   repo: ".git",
   number: gitCommitCount(),
-  fields: ["subject", "tag", "authorDate"],
-  author: "Oğuzhan Akbulut",
+  fields: ["subject", "tag", "authorDate"]
 };
 let commits = [];
 
@@ -24,16 +23,14 @@ if (githubURL === false)
 }
 else
 {
-  await gitLog(gitHistoryConfig).then(filteredCommits =>
-  {
-    commits = filteredCommits;
-    const port = startServer({ handleData, json2markdown });
-    const url = `http://localhost:${port}/#${packageData.packageJson.version}`;
-    open(url).then(() => {
-      console.log(`Server running on ${url}`);
-      console.log(
-        "Your browser should open shortly; if it doesn't, click on the link above (to cancel process, you can use 'control + c' shortcut)");
-    });
+  const port = startServer({ handleData, json2markdown });
+  const url = `http://localhost:${port}/#${packageData.packageJson.version}`;
+  open(url).then(() => {
+    console.log(`Server running on ${url}`);
+    console.log(
+      "Your browser should open shortly; if it doesn't, click on the link above (to cancel process, you can use 'control + c' shortcut)",
+    );
+    fetchCommitHistory();
   });
 }
 
@@ -66,6 +63,14 @@ function handleData(data)
     ensureTrailingNewline(data + changelogContents),
     (err) => err && console.error(err),
   );
+}
+
+async function fetchCommitHistory()
+{
+  await gitLog(gitHistoryConfig).then(filteredCommits =>
+  {
+    commits = filteredCommits;
+  });
 }
 
 function json2markdown()

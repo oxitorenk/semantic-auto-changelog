@@ -16,12 +16,7 @@
   <body>
     <div class="markdown-body" id="app">
       <template v-if="!isDone">
-        <h1>Semantic Auto Changelog</h1>
-        <br />
-        <div v-html="preview"></div>
-        <button type="button" class="btn btn-primary" @click="changes = []">
-          Generate Change Log
-        </button>
+        <div v-html="preview"> </div>
         <button type="submit" class="btn btn-primary" @click="submit">
           Save Change Log
         </button>

@@ -15,7 +15,7 @@ const versionOptions = ['patch', 'minor', 'major'].map((upgradeType) => {
 versionOptions.unshift(currentVersion);
 versionOptions.push('other');
 
-createApp({
+const app = createApp({
   data() {
     return {
       newVersion: currentVersion,
@@ -24,7 +24,7 @@ createApp({
       changes: [{}],
       error: '',
       isDone: false,
-      markdown: '',
+      markdown: this.getMarkdown(),
     };
   },
   computed: {
@@ -91,4 +91,6 @@ createApp({
         .catch(console.error);
     },
   },
-}).mount('#app');
+});
+
+app.mount('#app');

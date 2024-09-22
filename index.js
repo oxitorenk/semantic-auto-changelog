@@ -27,6 +27,13 @@ else
   await gitLog(gitHistoryConfig).then(filteredCommits =>
   {
     commits = filteredCommits;
+    const port = startServer({ handleData, json2markdown });
+    const url = `http://localhost:${port}/#${packageData.packageJson.version}`;
+    open(url).then(() => {
+      console.log(`Server running on ${url}`);
+      console.log(
+        "Your browser should open shortly; if it doesn't, click on the link above (to cancel process, you can use 'control + c' shortcut)");
+    });
   });
 }
 
@@ -44,15 +51,6 @@ catch (err)
     process.exit(1);
   }
 }
-
-const port = startServer({ handleData, json2markdown });
-const url = `http://localhost:${port}/#${packageData.packageJson.version}`;
-open(url).then(childProcess => {
-  console.log(`Server running on ${childProcess}`);
-  console.log(
-    "Your browser should open shortly; if it doesn't, click on the link above (to cancel process, you can use 'control + c' shortcut)",
-  );
-});
 
 function handleData(data)
 {

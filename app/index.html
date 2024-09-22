@@ -17,80 +17,14 @@
     <div class="markdown-body" id="app">
       <template v-if="!isDone">
         <h1>Semantic Auto Changelog</h1>
-        <div>
-          New Version Number:
-          <select class="form-select" v-model="newVersion">
-            <option v-for="version in versionOptions" v-bind:value="version">
-              {{ version }}
-            </option>
-          </select>
-          &nbsp;
-          <input
-            class="form-control"
-            v-if="newVersion === 'other'"
-            v-model="customVersion"
-            type="text"
-            placeholder="Version Number"
-          />
-        </div>
         <br />
-        <div class="change" v-for="(change, index) of changes">
-          <input
-            class="description form-control"
-            v-model="changes[index].description"
-            placeholder="Describe your changes"
-          />
-          <input
-            class="number form-control"
-            v-model="changes[index].issue"
-            placeholder="Issue #"
-          />
-          <input
-            class="number form-control"
-            v-model="changes[index].pr"
-            placeholder="PR #"
-          />
-          <div class="buttons BtnGroup">
-            <button
-              type="button"
-              class="btn BtnGroup-item btn-primary"
-              @click="changes.splice(index + 1, 0, {})"
-            >
-              +
-            </button>
-            <button
-              type="button"
-              class="btn BtnGroup-item"
-              @click="changes.splice(index - 1, 2, changes[index], changes[index - 1])"
-              :disabled="index === 0"
-            >
-              &uarr;
-            </button>
-            <button
-              type="button"
-              class="btn BtnGroup-item"
-              @click="changes.splice(index, 2, changes[index + 1], changes[index])"
-              :disabled="changes.length - 1 === index"
-            >
-              &darr;
-            </button>
-            <button
-              type="button"
-              class="btn BtnGroup-item btn-danger"
-              @click="changes.splice(index, 1)"
-              :disabled="changes.length === 1 && !index"
-            >
-              X
-            </button>
-          </div>
-        </div>
-        <div>
-          <h2>Preview:</h2>
-          <div v-html="preview"></div>
-          <button type="submit" class="btn btn-primary" @click="submit">
-            Write to CHANGELOG.md
-          </button>
-        </div>
+        <div v-html="preview"></div>
+        <button type="button" class="btn btn-primary" @click="changes = []">
+          Generate Change Log
+        </button>
+        <button type="submit" class="btn btn-primary" @click="submit">
+          Save Change Log
+        </button>
         <br />
         <div v-if="error" class="flash flash-error">{{ error }}</div>
       </template>

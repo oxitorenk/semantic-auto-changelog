@@ -1,9 +1,7 @@
 @import '@primer/css/dist/color-modes.css';
 @import '@primer/css/dist/base.css';
 @import '@primer/css/dist/buttons.css';
-@import '@primer/css/dist/forms.css';
-@import '@primer/css/dist/alerts.css';
-@import '@primer/css/dist/markdown.css';
+@import "github-markdown-css";
 
 .markdown-body {
   box-sizing: border-box;
@@ -13,20 +11,5 @@
   padding: 45px;
   @media (max-width: 767px) {
     padding: 15px;
-  }
-}
-
-.change {
-  display: flex;
-  margin-bottom: 5px;
-  & > * + * {
-    margin-left: 5px;
-  }
-  & .description {
-    flex: 2;
-    min-width: 12rem;
-  }
-  & .number {
-    width: 5rem;
   }
 }

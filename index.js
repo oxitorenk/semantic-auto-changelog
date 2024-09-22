@@ -4,213 +4,161 @@ import { readPackageUpSync } from 'read-pkg-up';
 import githubUrlFromGit from 'github-url-from-git';
 import open from 'open';
 import startServer from './server/index.js';
-import gitCommitCount from "git-commit-count";
-import gitLog from "gitlog";
+import gitCommitCount from 'git-commit-count';
+import gitLog from 'gitlog';
 
 const gitHistoryConfig = {
-  repo: ".git",
+  repo: '.git',
   number: gitCommitCount(),
-  fields: ["subject", "tag", "authorDate"]
+  fields: ['subject', 'tag', 'authorDate'],
 };
-let commits = [];
 
+let commits = [];
 const packageData = readPackageUpSync();
-const githubURL = githubUrlFromGit(packageData.packageJson.repository.url);
-if (githubURL === false)
-{
-  console.error('Error: Must have GitHub repository in package.json');
-  process.exit(1);
+const githubURL = getGithubUrl(packageData);
+
+if (!githubURL) {
+  exitWithError('Error: Must have GitHub repository in package.json');
 }
-else
-{
+
+startAppServer();
+
+// Fetches commit history asynchronously
+async function fetchCommitHistory() {
+  try {
+    commits = await gitLog(gitHistoryConfig);
+  } catch (error) {
+    console.error('Failed to fetch git log:', error);
+  }
+}
+
+function startAppServer() {
   const port = startServer({ handleData, json2markdown });
   const url = `http://localhost:${port}/#${packageData.packageJson.version}`;
+
   open(url).then(() => {
     console.log(`Server running on ${url}`);
-    console.log(
-      "Your browser should open shortly; if it doesn't, click on the link above (to cancel process, you can use 'control + c' shortcut)",
-    );
+    console.log("Your browser should open shortly; if not, click the link above.");
     fetchCommitHistory();
   });
 }
 
-const changelogPath = path.join(packageData.path, '../CHANGELOG.md');
-let changelogContents = '';
-try
-{
-  changelogContents = fs.readFileSync(changelogPath, 'utf8');
+// Handle incoming data and write to the changelog
+function handleData(data) {
+  const changelogPath = getChangelogPath(packageData);
+  const updatedContent = ensureTrailingNewline(data);
+
+  writeToFile(changelogPath, updatedContent);
 }
-catch (err)
-{
-  if (err.code !== 'ENOENT')
-  {
-    console.error(err);
-    process.exit(1);
+
+// Generate Markdown formatted changelog based on commits
+function json2markdown() {
+  let currentTag = "Unreleased"; // Default tag for unreleased changes
+  const commitContainer = initializeCommitContainer(currentTag);
+
+  commits.forEach((commit) => {
+    const newTag = convertTagToValidForm(commit.tag);
+
+    // If a new tag is encountered, update the current tag
+    if (newTag)
+      currentTag = newTag;
+
+    let container = commitContainer.find(c => c.tag === currentTag);
+
+    // If no container exists for the current tag, create a new one
+    if (!container) {
+      container = createNewCommitContainer(currentTag, commit.authorDate);
+      commitContainer.push(container);
+    }
+
+    // Categorize the commit into added, fixed, changed, or removed
+    categorizeCommit(commit.subject, container.content);
+  });
+
+  // Generate the markdown string based on the categorized commits
+  return generateMarkdown(commitContainer);
+}
+
+// Categorize commits into added, fixed, changed, or removed
+function categorizeCommit(subject, content) {
+  if (subject.startsWith('Added: ')) {
+    content.added.push(subject.replace('Added: ', ''));
+  } else if (subject.startsWith('Fixed: ')) {
+    content.fixed.push(subject.replace('Fixed: ', ''));
+  } else if (subject.startsWith('Changed: ')) {
+    content.changed.push(subject.replace('Changed: ', ''));
+  } else if (subject.startsWith('Removed: ')) {
+    content.removed.push(subject.replace('Removed: ', ''));
   }
 }
 
-function handleData(data)
-{
-  if (changelogContents === false)
-    console.log(`Creating new file: ${changelogPath}`);
-  else
-    console.log(`Prepending to ${changelogPath}`);
-
-  console.log(ensureTrailingNewline(data));
-
-  fs.writeFile(
-    changelogPath,
-    ensureTrailingNewline(data + changelogContents),
-    (err) => err && console.error(err),
-  );
+// Fetch GitHub URL from package data
+function getGithubUrl(packageData) {
+  return githubUrlFromGit(packageData?.packageJson?.repository?.url);
 }
 
-async function fetchCommitHistory()
-{
-  await gitLog(gitHistoryConfig).then(filteredCommits =>
-  {
-    commits = filteredCommits;
+// Get path for changelog file
+function getChangelogPath(packageData) {
+  return path.join(packageData.path, '../CHANGELOG.md');
+}
+
+function writeToFile(filePath, data) {
+  fs.writeFile(filePath, data, (err) => {
+    if (err) console.error('Error writing to file:', err);
   });
 }
 
-function json2markdown()
-{
-  let currentTag = "Unreleased";
-  const commitContainer = [{tag: currentTag, date: commits[0].authorDate.split(' ')[0], content: {added: [], fixed: [], changed: [], removed: []}}];
-  for (let i = 0; i < commits.length; i++)
-  {
-    const commitTag = getTag(commits[i].tag);
-    if (commitTag !== "" && !commitContainer.some(container => container.tag === commitTag))
+function convertTagToValidForm(gitTag) {
+  if (!gitTag || !gitTag.includes('tag')) return '';
+  return gitTag.split(',').find(tag => tag.includes('tag')).replace('tag: ', '').trim();
+}
+
+// Initializes the first commit container with "Unreleased" tag
+function initializeCommitContainer(initialTag) {
+  return [
     {
-      const newContainer = {
-        tag: getTag(commits[i].tag),
-        date: commits[i].authorDate.split(' ')[0],
-        content: {added: [], fixed: [], changed: [], removed: []}
-      }
+      tag: initialTag,
+      date: commits[0].authorDate.split(' ')[0],
+      content: { added: [], fixed: [], changed: [], removed: [] },
+    },
+  ];
+}
 
-      if (commits[i].subject.includes("Added: "))
-      {
-        newContainer.content.added.push(commits[i].subject.replace("Added: ", ""));
-      }
-      else if (commits[i].subject.includes("Fixed: "))
-      {
-        newContainer.content.fixed.push(commits[i].subject.replace("Fixed: ", ""));
-      }
-      else if (commits[i].subject.includes("Changed: "))
-      {
-        newContainer.content.changed.push(commits[i].subject.replace("Changed: ", ""));
-      }
-      else if (commits[i].subject.includes("Removed: "))
-      {
-        newContainer.content.removed.push(commits[i].subject.replace("Removed: ", ""));
-      }
+// Creates a new commit container for a specific tag and date
+function createNewCommitContainer(tag, date) {
+  return {
+    tag,
+    date,
+    content: { added: [], fixed: [], changed: [], removed: [] },
+  };
+}
 
-      commitContainer.push(newContainer);
-      currentTag = newContainer.tag;
-      continue;
+// Generates Markdown formatted changelog from commit data
+function generateMarkdown(commitContainer) {
+  let mdFile = `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n`;
+  mdFile += `The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),\n`;
+  mdFile += `and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n`;
+
+  // Iterate through each tag and its categorized changes
+  commitContainer.forEach((container) => {
+    const { added, fixed, changed, removed } = container.content;
+    if (added.length || fixed.length || changed.length || removed.length) {
+      mdFile += `## [${container.tag}] - ${container.date}\n\n`;
+      if (added.length) mdFile += `### Added\n\n${added.map(item => `- ${item}\n`).join('')}\n`;
+      if (fixed.length) mdFile += `### Fixed\n\n${fixed.map(item => `- ${item}\n`).join('')}\n`;
+      if (changed.length) mdFile += `### Changed\n\n${changed.map(item => `- ${item}\n`).join('')}\n`;
+      if (removed.length) mdFile += `### Removed\n\n${removed.map(item => `- ${item}\n`).join('')}\n`;
     }
-
-    // eslint-disable-next-line no-loop-func
-    const validContainers = commitContainer.filter(container => container.tag === currentTag);
-    if (commits[i].subject.includes("Added: "))
-    {
-      validContainers[0].content.added.push(commits[i].subject.replace("Added: ", ""));
-    }
-    else if (commits[i].subject.includes("Fixed: "))
-    {
-      validContainers[0].content.fixed.push(commits[i].subject.replace("Fixed: ", ""));
-    }
-    else if (commits[i].subject.includes("Changed: "))
-    {
-      validContainers[0].content.changed.push(commits[i].subject.replace("Changed: ", ""));
-    }
-    else if (commits[i].subject.includes("Removed: "))
-    {
-      validContainers[0].content.removed.push(commits[i].subject.replace("Removed: ", ""));
-    }
-  }
-
-  let mdFile = "# Changelog\n\n";
-  mdFile += "All notable changes to this project will be documented in this file.\n\n";
-  mdFile += "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), ";
-  mdFile += "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n";
-
-  for (let i = 0; i < commitContainer.length; i++)
-  {
-    if (commitContainer[i].content.added.length === 0 && commitContainer[i].content.changed.length === 0 && commitContainer[i].content.fixed.length === 0 && commitContainer[i].content.removed.length === 0) continue;
-
-    const container = commitContainer[i];
-    const {content} = container;
-    mdFile += `## [${container.tag}] - ${container.date}\n\n`;
-
-    if (content.added.length > 0)
-    {
-      mdFile += "### Added\n\n";
-
-      for (let i = 0; i < content.added.length; i++)
-      {
-        mdFile += `- ${content.added[i]}\n`;
-      }
-
-      mdFile += "\n";
-    }
-
-    if (content.fixed.length > 0)
-    {
-      mdFile += "### Fixed\n\n";
-
-      for (let i = 0; i < content.fixed.length; i++)
-      {
-        mdFile += `- ${content.fixed[i]}\n`;
-      }
-
-      mdFile += "\n";
-    }
-
-    if (content.changed.length > 0)
-    {
-      mdFile += "### Changed\n\n";
-
-      for (let i = 0; i < content.changed.length; i++)
-      {
-        mdFile += `- ${content.changed[i]}\n`;
-      }
-
-      mdFile += "\n";
-    }
-
-    if (content.removed.length > 0)
-    {
-      mdFile += "### Removed\n\n";
-
-      for (let i = 0; i < content.removed.length; i++)
-      {
-        mdFile += `- ${content.removed[i]}\n`;
-      }
-
-      mdFile += "\n";
-    }
-  }
+  });
 
   return mdFile;
 }
 
-function getTag(gitTag)
-{
-  if (gitTag === "" || !gitTag.includes("tag"))
-  {
-    return "";
-  }
-
-  const result = gitTag.split(',');
-  const validTagResults = result.filter(tag => tag.includes("tag"));
-  const tagIndex = validTagResults.length - 1;
-  validTagResults[tagIndex] = validTagResults[tagIndex].replace("tag: ", '');
-  validTagResults[tagIndex] = validTagResults[tagIndex].replace(' ', '');
-
-  return validTagResults[tagIndex];
-}
-
 function ensureTrailingNewline(text) {
   return `${text.trim()}\n`;
+}
+
+function exitWithError(message) {
+  console.error(message);
+  process.exit(1);
 }

@@ -1,7 +1,7 @@
 {
   "name": "semantic-auto-changelog",
-  "version": "0.0.2",
-  "description": "Handy browser UI to help you write changelogs",
+  "version": "1.0.0",
+  "description": "Semantic Auto Changelog is an automated tool that generates changelogs from your git commit history, following the Keep a Changelog style and Semantic Versioning. Built with Vue and GitHub Markdown, it streamlines the process of creating and editing changelogs for your projects.",
   "homepage": "https://github.com/oxitorenk/semantic-auto-changelog#readme",
   "bugs": {
     "url": "https://github.com/oxitorenk/semantic-auto-changelog/issues"

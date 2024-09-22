@@ -67,7 +67,7 @@ function json2markdown() {
 
     // If no container exists for the current tag, create a new one
     if (!container) {
-      container = createNewCommitContainer(currentTag, commit.authorDate);
+      container = createNewCommitContainer(currentTag, commit.authorDate.split(' ')[0]);
       commitContainer.push(container);
     }
 

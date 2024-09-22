@@ -1,33 +1,25 @@
 <!doctype html>
-<html
-  lang="en"
-  dir="ltr"
-  data-color-mode="auto"
-  data-light-theme="light"
-  data-dark-theme="dark"
->
-  <head>
-    <meta charset="utf-8" />
-    <title>Semantic Auto Changelog</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <base target="_blank" />
-    <link rel="stylesheet" href="bundle.css" />
-  </head>
-  <body>
-    <div class="markdown-body" id="app">
-      <template v-if="!isDone">
-        <div v-html="preview"> </div>
-        <button type="submit" class="btn btn-primary" @click="submit">
-          Save Change Log
-        </button>
-        <br />
-        <div v-if="error" class="flash flash-error">{{ error }}</div>
-      </template>
-      <div v-else>
-        <h1>All Done!</h1>
-        <p>Please close this browser tab and return to the terminal</p>
-      </div>
-    </div>
-    <script src="bundle.js" charset="utf-8"></script>
-  </body>
+<html lang="en" dir="ltr" data-color-mode="auto" data-light-theme="light" data-dark-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <title>Semantic Auto Changelog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <base target="_blank" />
+  <link rel="stylesheet" href="bundle.css" />
+</head>
+<body>
+<div class="markdown-body" id="app">
+  <template v-if="!isDone">
+    <div v-html="preview"></div>
+    <button type="submit" class="btn btn-primary" @click="submit">Save Change Log</button>
+    <br />
+    <div v-if="error" class="flash flash-error">{{ error }}</div>
+  </template>
+  <div v-else>
+    <h1>All Done!</h1>
+    <p>Please close this browser tab and return to the terminal.</p>
+  </div>
+</div>
+<script src="bundle.js" charset="utf-8"></script>
+</body>
 </html>

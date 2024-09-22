@@ -74,7 +74,7 @@ createApp({
         this.error = `Invalid version "${this.customVersion}"`;
         return;
       }
-      if (!this.filteredChanges.length) {
+      if (!this.markdown.length) {
         this.error = 'No release notes written; aborting.';
         return;
       }

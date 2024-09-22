@@ -1,7 +1,7 @@
 @import '@primer/css/dist/color-modes.css';
 @import '@primer/css/dist/base.css';
 @import '@primer/css/dist/buttons.css';
-@import "github-markdown-css";
+@import 'github-markdown-css';
 
 .markdown-body {
   box-sizing: border-box;
@@ -9,6 +9,8 @@
   max-width: 980px;
   margin: 0 auto;
   padding: 45px;
+
+  /* Adjust padding for smaller screens */
   @media (max-width: 767px) {
     padding: 15px;
   }

@@ -7,12 +7,6 @@ import startServer from './server/index.js';
 import gitCommitCount from 'git-commit-count';
 import gitLog from 'gitlog';
 
-const gitHistoryConfig = {
-  repo: '.git',
-  number: gitCommitCount(),
-  fields: ['subject', 'tag', 'authorDate'],
-};
-
 let commits = [];
 const packageData = readPackageUpSync();
 const githubURL = getGithubUrl(packageData);
@@ -20,6 +14,12 @@ const githubURL = getGithubUrl(packageData);
 if (!githubURL) {
   exitWithError('Error: Must have GitHub repository in package.json');
 }
+
+const gitHistoryConfig = {
+  repo: packageData.path.replace("package.json", '.git'),
+  number: gitCommitCount(githubURL),
+  fields: ['subject', 'tag', 'authorDate'],
+};
 
 startAppServer();
 

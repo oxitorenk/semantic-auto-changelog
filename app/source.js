@@ -1,12 +1,11 @@
 import { createApp } from 'vue/dist/vue.esm-bundler.js';
 import { marked } from 'marked';
-// Only load the parts of semver we need
+
 import clean from 'semver/functions/clean';
 import inc from 'semver/functions/inc';
+
 const semver = { clean, inc };
-
-const hashArgs = window.location.hash.substr(1).split('|');
-
+const hashArgs = window.location.hash.slice(1).split('|');
 const currentVersion = semver.clean(hashArgs[0]);
 
 const versionOptions = ['patch', 'minor', 'major'].map((upgradeType) => {
@@ -34,7 +33,7 @@ const app = createApp({
         : this.newVersion;
     },
     filteredChanges() {
-      return this.changes.filter((i) => i.description && i.description.trim());
+      return this.changes.filter((change) => change.description?.trim());
     },
     preview() {
       return marked.parse(this.markdown || '');
@@ -54,7 +53,7 @@ const app = createApp({
   methods: {
     getMarkdown() {
       return fetch('/json2markdown', {
-        method: 'post',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -78,16 +77,19 @@ const app = createApp({
         this.error = 'No release notes written; aborting.';
         return;
       }
+
       this.error = '';
 
       fetch('/', {
-        method: 'post',
+        method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
         },
         body: this.markdown,
       })
-        .then(() => (this.isDone = true))
+        .then(() => {
+          this.isDone = true;
+        })
         .catch(console.error);
     },
   },

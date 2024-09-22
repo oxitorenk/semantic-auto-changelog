@@ -11,7 +11,8 @@ After the changelog is generated, you can optionally manually edit each entry th
 - **Browser Interface**: Easy-to-use browser interface built with Vue, using Primer CSS for styling and GitHub Markdown for rendering.
 
 ## Screenshot
-![Screenshot](screenshot.png)
+![Screenshot01](screenshot01.png)
+![Screenshot02](screenshot02.png)
 
 ## Commit Message Format
 

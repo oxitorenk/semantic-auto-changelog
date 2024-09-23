@@ -11,7 +11,10 @@
 <div class="markdown-body" id="app">
   <template v-if="!isDone">
     <div v-html="preview"></div>
-    <button type="submit" class="btn btn-primary" @click="submit">Save Change Log</button>
+    <div>
+      <button type="button" class="btn btn-danger mr-2" @click=getMarkdown>Regenerate Changelog</button>
+      <button type="submit" class="btn btn-primary" @click="submit">Save Changelog</button>
+    </div>
     <br />
     <div v-if="error" class="flash flash-error">{{ error }}</div>
   </template>
